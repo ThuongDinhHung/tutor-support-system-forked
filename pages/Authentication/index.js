@@ -1,5 +1,0 @@
-export { Login } from "./Login";
-export { ResetPassword } from "./ResetPassword";
-export { ChangePassword } from "./ChangePassword";
-export { PasswordReset } from "./PasswordReset";
-export { Confirmation } from "./Confirmation";
