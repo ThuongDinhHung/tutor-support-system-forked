@@ -11,6 +11,8 @@ import {
 } from './pages/Authentication'
 import CourseStructure from './pages/Resource/CourseStructure'
 import FileDetails from './pages/Resource/FileDetails'
+import CurrentSesion from './pages/Sessions/CurrentSession'
+import RegisterSession from './pages/Sessions/RegisterSession'
 
 function App() {
   return (
@@ -28,6 +30,9 @@ function App() {
       {/* RESOURCE MODULE */}
       <Route path="/user/private" element={<PrivateStorage />} />
       <Route path="/courses" element={<CourseStructure/>} />
+      {/* SCHEDULE MODULE */}
+      <Route path="/sessions" element={<CurrentSesion />} />
+      <Route path="/sessions/register" element={<RegisterSession/>} />
     </Routes>
   )
 }
