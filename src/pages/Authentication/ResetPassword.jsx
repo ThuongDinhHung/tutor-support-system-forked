@@ -28,7 +28,7 @@ export const ResetPassword = () => {
 
   return (
     <div
-      className="w-full min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-cyan-50"
+      className="w-full min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-cyan-50 font-sans text-gray-800"
       data-model-id="260:1248"
     >
       <Header />
@@ -36,7 +36,7 @@ export const ResetPassword = () => {
       <main className="flex-1 flex items-center justify-center py-12">
         <div className="w-[888px] bg-white/90 backdrop-blur-sm shadow-lg rounded-xl border-0 translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:600ms]">
           <div className="p-16">
-            <h2 className="text-center [font-family:'Rubik_One-Regular',Helvetica] font-normal text-cyan-600 text-4xl tracking-[0] leading-[normal] mb-16 translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:800ms]">
+            <h2 className="text-center font-bold text-cyan-600 text-4xl tracking-[0] leading-[normal] mb-16 translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:800ms]">
               Reset Password
             </h2>
 
@@ -50,7 +50,7 @@ export const ResetPassword = () => {
               <div className="space-y-4 translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:1000ms]">
                 <label
                   htmlFor="username"
-                  className="[font-family:'Rubik_One-Regular',Helvetica] font-normal text-cyan-600 text-[32px] tracking-[0] leading-[normal]"
+                  className="font-semibold text-cyan-600 text-[32px] tracking-[0] leading-[normal]"
                 >
                   Username
                 </label>
@@ -67,7 +67,7 @@ export const ResetPassword = () => {
               <div className="space-y-4 translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:1200ms]">
                 <label
                   htmlFor="email"
-                  className="[font-family:'Rubik_One-Regular',Helvetica] font-normal text-cyan-600 text-[32px] tracking-[0] leading-[normal]"
+                  className="font-semibold text-cyan-600 text-[32px] tracking-[0] leading-[normal]"
                 >
                   Email Address
                 </label>
@@ -84,11 +84,9 @@ export const ResetPassword = () => {
               <div className="flex justify-center pt-8 translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:1400ms]">
                 <button
                   type="submit"
-                  className="w-[617px] h-[92px] bg-[#eaeaea] rounded-lg border border-solid border-black shadow-[0px_4px_4px_#00000040] hover:bg-[#d5d5d5] transition-colors"
+                  className="w-[617px] h-[92px] bg-[#eaeaea] rounded-lg border border-solid border-black shadow-[0px_4px_4px_#00000040] hover:bg-[#d5d5d5] transition-colors text-xl font-semibold text-black tracking-[0] leading-[normal]"
                 >
-                  <span className="[text-shadow:0px_4px_4px_#00000040] [-webkit-text-stroke:1px_#000000] [font-family:'Noto_Sans',Helvetica] font-normal text-transparent text-xl tracking-[0] leading-[normal]">
-                    Confirm
-                  </span>
+                  Confirm
                 </button>
               </div>
 

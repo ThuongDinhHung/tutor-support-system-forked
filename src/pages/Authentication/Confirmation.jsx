@@ -8,7 +8,7 @@ export const Confirmation = () => {
 
   return (
     <div
-      className="bg-white w-full min-h-screen flex flex-col"
+      className="bg-white w-full min-h-screen flex flex-col font-sans text-gray-800"
       data-model-id="273:1426"
     >
       <Header />
@@ -41,7 +41,7 @@ export const Confirmation = () => {
         <div className="translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:800ms]">
           <button
             onClick={() => navigate("/login")}
-            className="px-12 py-6 text-3xl font-bold bg-transparent hover:opacity-80 transition-opacity"
+            className="px-12 py-6 text-3xl font-bold bg-white/90 text-blue-700 border-2 border-black rounded-none shadow-lg hover:bg-white hover:shadow-2xl transition-all"
           >
             DONE!
           </button>

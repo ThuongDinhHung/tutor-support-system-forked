@@ -33,7 +33,7 @@ export const Login = () => {
   };
 
   return (
-    <div className="bg-white w-full min-h-screen flex flex-col">
+    <div className="bg-white w-full min-h-screen flex flex-col font-sans text-gray-800">
       <Header />
 
       <main className="flex-1 flex items-center justify-center px-8 py-12">
