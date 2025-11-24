@@ -59,7 +59,7 @@ export const ChangePassword = () => {
 
   return (
     <div
-      className="w-full min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-cyan-50"
+      className="w-full min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-cyan-50 font-sans text-gray-800"
       data-model-id="273:1500"
     >
       <Header />
@@ -67,7 +67,7 @@ export const ChangePassword = () => {
       <main className="flex-1 flex items-center justify-center py-12 px-4">
         <div className="w-full max-w-[888px] bg-white/90 backdrop-blur-sm shadow-[0px_4px_4px_#00000040] rounded-xl border border-black/10 translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:600ms]">
           <div className="p-12">
-            <h2 className="text-center [font-family:'Rubik_One-Regular',Helvetica] font-normal text-cyan-600 text-4xl tracking-[0] leading-[normal] mb-12 translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:800ms]">
+            <h2 className="text-center font-bold text-cyan-600 text-4xl tracking-[0] leading-[normal] mb-12 translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:800ms]">
               Change Your Password
             </h2>
 
@@ -88,7 +88,7 @@ export const ChangePassword = () => {
                 >
                   <label
                     htmlFor={field.id}
-                    className="[font-family:'Rubik_One-Regular',Helvetica] font-normal text-cyan-600 text-[32px] tracking-[0] leading-[normal] whitespace-nowrap"
+                    className="font-semibold text-cyan-600 text-[32px] tracking-[0] leading-[normal] whitespace-nowrap"
                   >
                     {field.label}
                   </label>
@@ -124,7 +124,7 @@ export const ChangePassword = () => {
               <div className="flex justify-center pt-8 translate-y-[-1rem] animate-fade-in opacity-0 [--animation-delay:1800ms]">
                 <button
                   type="submit"
-                  className="w-[617px] h-[92px] bg-[#eaeaea] hover:bg-[#d5d5d5] rounded-lg border border-solid border-black shadow-[0px_4px_4px_#00000040] [text-shadow:0px_4px_4px_#00000040] [-webkit-text-stroke:1px_#000000] [font-family:'Noto_Sans',Helvetica] font-normal text-transparent text-xl tracking-[0] leading-[normal] transition-colors"
+                  className="w-[617px] h-[92px] bg-[#eaeaea] hover:bg-[#d5d5d5] rounded-lg border border-solid border-black shadow-[0px_4px_4px_#00000040] text-xl font-semibold text-black tracking-[0] leading-[normal] transition-colors"
                 >
                   Confirm
                 </button>
