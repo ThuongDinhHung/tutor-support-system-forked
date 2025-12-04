@@ -3,11 +3,12 @@ import ConfirmAction from "./ConfirmAction";
 import CreateEditAction from "./CreateEditAction";
 import SessionStatusRegister from "./SessionStatusRegister";
 
-export default function Modal({sessions, setSessions, selectedSession, setSelectedSession, type, onClose, user = null}) {
+export default function Modal({sessions, setSessions, selectedSession, setSelectedSession, type, onClose, user = null, notifications = null, setNotifications = null}) {
   if (!type && !selectedSession) return null;
   if (type === "record") {
     return (
       <SessionStatusTutor
+        setSessions = {setSessions}
         type={type}
         selectedSession={selectedSession}
         onClose={onClose}
@@ -23,6 +24,8 @@ export default function Modal({sessions, setSessions, selectedSession, setSelect
         type={type}
         onClose={onClose}
         user={user}
+        notifications = {notifications}
+        setNotifications={setNotifications}
       />
     );
   } else if (type === "create" || type === "edit") {
@@ -35,6 +38,8 @@ export default function Modal({sessions, setSessions, selectedSession, setSelect
         type={type}
         onClose={onClose}
         user={user}
+        notifications = {notifications}
+        setNotifications={setNotifications}
       />
     );
   } else if (type === "register") {

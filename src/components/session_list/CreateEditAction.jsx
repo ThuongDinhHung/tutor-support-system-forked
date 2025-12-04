@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { RxCross2 } from "react-icons/rx";
 import { TbMapPin, TbCalendarMonth, TbClock, TbFileDescription, TbUsers } from "react-icons/tb";
 
-export default function CreateEditAction({ sessions, setSessions, selectedSession, setSelectedSession, type, onClose, user }) {
+export default function CreateEditAction({ sessions, setSessions, selectedSession, setSelectedSession, type, onClose, user, notifications, setNotifications }) {
   if (!type) return null;
   const isEdit = type === "edit";
   const tomorrow = new Date();
@@ -35,19 +35,75 @@ export default function CreateEditAction({ sessions, setSessions, selectedSessio
       ? selectedSession?.endTime || `${(closest.hour + 1) % 24}:00`
       : `${(closest.hour + 1) % 24}:00`
   );
-  const [repeat, setRepeat] = useState(false);
-  const [week, setWeek] = useState(getWeekNumber(tomorrow) + 2);
   const [location, setLocation] = useState(isEdit ? selectedSession?.location || "" : "");
   const [maxStudents, setMaxStudents] = useState(isEdit ? selectedSession?.maxStudent || "" : "");
   const [description, setDescription] = useState(isEdit ? selectedSession?.description || "" : "");
 
-  function getWeekNumber(d) {
-    const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-    const dayNum = date.getUTCDay() || 7;
-    date.setUTCDate(date.getUTCDate() + 4 - dayNum);
-    const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
-    return Math.ceil(((date - yearStart) / 86400000 + 1) / 7);
-  }
+  const toMinutes = (timeStr) => {
+    const [h, m] = timeStr.split(":").map(Number);
+    return h * 60 + m;
+  };
+
+  const validateSession = (isEdit) => {
+    // 0. Compulsory field
+    if (!title) return "Title must be filled."
+    if (!location) return "Location must be filled."
+    if (!maxStudents) return "Number of student must be filled."
+
+    const startMin = toMinutes(startTime);
+    const endMin = toMinutes(endTime);
+
+    // 1. Some time requirement
+    if (startMin >= endMin)
+      return "Start time must be earlier than end time.";
+    if (endMin - startMin < 60)
+      return "Session duration must be at least 1 hour.";
+    if (startMin < 300)
+      return "Session can not start before 5AM.";
+
+    const today = new Date();
+    const selectedDate = new Date(date);
+
+    // 2. Must be after now + 2 hours && Date must not be in the past
+    if (selectedDate.toDateString() === today.toDateString()) {
+      const nowPlus2 = new Date();
+      nowPlus2.setHours(nowPlus2.getHours() + 2);
+
+      const sessionStart = new Date(`${date}T${startTime}`);
+
+      if (sessionStart < nowPlus2)
+        return isEdit
+        ? "An edited session must start at least 2 hours from now."
+        : "A new session must start at least 2 hours from now.";
+    }
+    today.setHours(0, 0, 0, 0);
+    selectedDate.setHours(0, 0, 0, 0);
+    if (selectedDate < today) {
+      return "The selected date is in the past.";
+    }
+
+    // 3. No overlap with tutor’s existing sessions
+    const tutorSessions = sessions.filter(s => s.tutorID === user.id);
+
+    for (const s of tutorSessions) {
+      // Skip comparing with itself during edit or it was the canceled session
+      if ((isEdit && s.id === selectedSession.id) || s.state === "Canceled") continue;
+
+      if (s.date !== date) continue; // different day = OK
+
+      const sStart = toMinutes(s.startTime);
+      const sEnd = toMinutes(s.endTime);
+
+      const overlap =
+        (startMin < sEnd && endMin > sStart); // classic overlap condition
+
+      if (overlap) {
+        return `This session overlaps with another session: "${s.title}" (${s.startTime}–${s.endTime}).`;
+      }
+    }
+
+    return null; // valid!
+  };
 
   const handleEditSave = () => {
     if (!selectedSession) return;
@@ -67,31 +123,56 @@ export default function CreateEditAction({ sessions, setSessions, selectedSessio
     setSessions((prev) =>
       prev.map((s) => (s.id === selectedSession.id ? updated : s))
     );
+
+    // Send noti
+    const newNotiList = {};
+
+    for (const student of selectedSession.students) {
+      const newNoti = {
+        id: (student.studentID * 1000) + (notifications[student.studentID]?.length || 0) + 1,
+        courseName: selectedSession.courseName,
+        courseID: selectedSession.courseID,
+        tutor: selectedSession.tutor,
+        date: new Date().toISOString(),
+        title: updated.title,
+        description: "The tutor has edited the session.",
+        isRead: false,
+      };
+
+      newNotiList[student.studentID] = [
+        ...(notifications[student.studentID] || []),
+        newNoti,
+      ];
+    }
+    setNotifications(prev => ({
+      ...prev,
+      ...newNotiList
+    }));
   };
 
   const handleCreateSave = () => {
-  // Build new session object
-  const newSession = {
-    id: sessions.length + 1,                     // generate unique id
-    title,
-    date,
-    startTime,
-    endTime,
-    location,
-    maxStudent: parseInt(maxStudents) || 0,
-    description,
-    courseName: "Software Engineering",
-    courseID: "CO3001",
-    tutorID: user.id,
-    tutor: user.name,
-    state: "Upcoming",
-    students: [],
-    reason: "",
-  };
+    // Build new session object
+    const newSession = {
+      id: sessions.length + 1,                     // generate unique id
+      title,
+      date,
+      startTime,
+      endTime,
+      location,
+      maxStudent: parseInt(maxStudents) || 0,
+      description,
+      courseName: "Software Engineering",
+      courseID: "CO3001",
+      tutorID: user.id,
+      tutor: user.name,
+      state: "Not started",
+      students: [],
+      reason: "",
+    };
 
-  // Add to session list
-  setSessions((prev) => [...prev, newSession]);
-};
+    // Add to session list
+    setSessions((prev) => [...prev, newSession]);
+  };
 
   return (
     <div 
@@ -147,24 +228,6 @@ export default function CreateEditAction({ sessions, setSessions, selectedSessio
           />
         </div>
 
-        {/* Repeat button */}
-        {!isEdit && (
-          <div className="flex items-center gap-2 mb-3 text-text-primary">
-            <TbCalendarMonth/>
-            <input type="checkbox" onClick={() => setRepeat(!repeat)} />
-            <span>
-              {repeat ? `Repeat until week ` : "Does not repeat"}
-              {repeat && (<input
-                type="number"
-                value={week}
-                onChange={(e) => setWeek(e.target.value)}
-                className="w-15 border rounded-md px-2 py-1"
-              />)}
-            </span>
-          </div>
-        )}
-        
-
         {/* Location */}
         <div className="flex items-center gap-2 mb-3 text-text-primary">
           <TbMapPin/>
@@ -206,8 +269,15 @@ export default function CreateEditAction({ sessions, setSessions, selectedSessio
         <div className="flex justify-end">
           <button
             onClick={() => {
-              if (isEdit) {handleEditSave();}
-              else {handleCreateSave();}
+              const err = validateSession(isEdit);
+              if (err) { 
+                alert(err);
+                return;
+              }
+
+              if (isEdit) handleEditSave();
+              else handleCreateSave();
+
               onClose();
             }}
             className="px-5 py-1.5 border border-primary text-primary rounded-full hover:bg-primary hover:text-white transition"

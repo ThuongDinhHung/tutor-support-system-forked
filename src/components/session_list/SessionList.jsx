@@ -3,10 +3,18 @@ import formatSessionTime from "./formatSessionTime";
 
 export default function SessionList({sessions, click, isTutor = false, user = null, isRegister = false, search}) {
 
+  const stateOrder = {
+    "Ongoing": 1,
+    "Not started": 2,
+    "Being evaluated": 3,
+    "Finished": 4,
+    "Canceled": 5
+  };
+
   // Filtered sessions
   const filteredSessions = isRegister? sessions.filter((session) => {
     if (user) {
-      return (!session.students.some(student => student.studentID === user.id)) && (search? (session.courseID.includes(search) || session.tutor.includes(search)) : true);
+      return (session.state === "Not started" || session.state === "Ongoing") && (!session.students.some(student => student.studentID === user.id)) && (search? (session.courseID.includes(search) || session.tutor.includes(search)) : true);
     }
     return true; // fallback, show all if no filter
   }) : sessions.filter((session) => {
@@ -16,9 +24,21 @@ export default function SessionList({sessions, click, isTutor = false, user = nu
     return true; // fallback, show all if no filter
   })
 
+  // Sorted session
+  const sortedSessions = filteredSessions.sort((a, b) => {
+    if (stateOrder[a.state] !== stateOrder[b.state]) {
+      return stateOrder[a.state] - stateOrder[b.state];
+    }
+
+    const dateA = new Date(`${a.date} ${a.startTime}`);
+    const dateB = new Date(`${b.date} ${b.startTime}`);
+
+    return dateA - dateB;
+  });
+
   return (
     <div className="space-y-3">
-      {filteredSessions.map((session, index) => (
+      {sortedSessions.map((session, index) => (
         <div
           key={index}
           onClick={() => {click(session);}}
@@ -46,7 +66,7 @@ export default function SessionList({sessions, click, isTutor = false, user = nu
             </div>
 
             {/* Right-side */}
-            {isTutor? (
+            {(isTutor && session.state === "Not started")? (
               <div className="flex gap-2 h-fit">
                 <button 
                   className="p-1 hover:bg-primary/20 rounded-full transition text-primary"

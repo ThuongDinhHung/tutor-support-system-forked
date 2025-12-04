@@ -1,9 +1,52 @@
+import { useState } from "react";
 import { TbMapPin, TbCalendarMonth, TbClock, TbUsers } from "react-icons/tb";
 import { RxCross2 } from "react-icons/rx";
 import formatSessionTime from "./formatSessionTime";
 
-export default function SessionStatusTutor( {type, selectedSession, onClose} ) {
+export default function SessionStatusTutor( {setSessions, type, selectedSession, onClose} ) {
   if (!type) return null;
+
+  const [studentNotes, setStudentNotes] = useState(
+    selectedSession.students.map(s => s.description || "")
+  );
+
+  const handleDescriptionChange = (index, value) => {
+    setStudentNotes(prev => {
+      const updated = [...prev];
+      updated[index] = value;
+      return updated;
+    });
+  };
+
+
+  const handleEndSession = () => {
+    if (!selectedSession) return;
+
+    const updated = {
+      ...selectedSession,
+      state: "Finished",
+    };
+
+    // Update the session list
+    setSessions((prev) =>
+      prev.map((s) => (s.id === selectedSession.id ? updated : s))
+    );
+  };
+
+  const handleSave = () => {
+    const updatedSession = {
+      ...selectedSession,
+      students: selectedSession.students.map((s, i) => ({
+        ...s,
+        description: studentNotes[i]
+      }))
+    };
+
+    setSessions(prev =>
+      prev.map(s => (s.id === selectedSession.id ? updatedSession : s))
+    );
+  };
+
   
   return (
     <div
@@ -50,7 +93,6 @@ export default function SessionStatusTutor( {type, selectedSession, onClose} ) {
             <tr>
               <th className="border px-2 py-2">ID</th>
               <th className="border px-2 py-2 w-60">Full name</th>
-              <th className="border px-2 py-2">Attendance</th>
               <th className="border px-2 py-2 w-120">Note</th>
             </tr>
           </thead>
@@ -59,13 +101,10 @@ export default function SessionStatusTutor( {type, selectedSession, onClose} ) {
               <tr key={index}>
                 <td className="border px-2 py-1 text-text-primary">{student.studentID}</td>
                 <td className="border px-2 py-1 text-text-primary">{student.studentName}</td>
-                <td className="border px-2 py-1 text-center text-text-primary">
-                  <input type="checkbox" />
-                </td>
                 <td className="border px-2 py-1 text-text-primary">
                   <input
                     type="text"
-                    value={student.description}
+                    value={studentNotes[index]}
                     onChange={(e) =>
                       handleDescriptionChange(index, e.target.value)
                     }
@@ -79,22 +118,27 @@ export default function SessionStatusTutor( {type, selectedSession, onClose} ) {
         </table>
 
         {/* Buttons */}
-        <div className="flex justify-end gap-3 mt-5">
-          <button
-            // onClick={handleEndSession}
+        {(selectedSession.state === "Ongoing" || selectedSession.state === "Being evaluated") && (<div className="flex justify-end gap-3 mt-5">
+          {selectedSession.state === "Being evaluated" && (<button
             className="border border-primary text-primary font-medium py-2 px-4 rounded-full hover:bg-primary hover:text-white"
-            onClick={onClose}
+            onClick={() => {
+              handleSave();
+              handleEndSession();
+              onClose();
+            }}
           >
             End session
-          </button>
+          </button>)}
           <button
-            // onClick={handleSave}
             className="border border-primary text-primary font-medium py-2 px-4 rounded-full hover:bg-primary hover:text-white"
-            onClick={onClose}
+            onClick={() => {
+              handleSave();
+              onClose();
+            }}
           >
             Save
           </button>
-        </div>
+        </div>)}
       </div>
     </div>
   )

@@ -43,8 +43,9 @@ function App() {
       <Route path="/user/private" element={<PrivateStorage />} />
       <Route path="/courses" element={<CourseStructure/>} />
       {/* SCHEDULE MODULE */}
-      <Route path="/sessions" element={<SchedulingPage isTutor = {true} />} />
+      <Route path="/sessions" element={<SchedulingPage isTutor = {false} />} />
       <Route path="/sessions/register" element={<SchedulingPage isRegister = {true} />} />
+      <Route path="/sessions/tutor" element={<SchedulingPage isTutor = {true} />} />
       {/* REGISTER COURSE MODULE */}
       <Route path="/register-course" element={<RegisterCourse />} />
     </Routes>

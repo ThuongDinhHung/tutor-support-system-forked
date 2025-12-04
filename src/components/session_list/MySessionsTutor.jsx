@@ -4,7 +4,7 @@ import Modal from "./Modal";
 import Notification from "../notification/Notification";
 import SessionList from "./SessionList";
 
-export default function MySessionsTutor({sessions, setSessions, selectedSession, setSelectedSession, user}) {
+export default function MySessionsTutor({sessions, setSessions, selectedSession, setSelectedSession, user, notifications, setNotifications}) {
   const [type, setType] = useState(null);
   const [showNoti, setShowNoti] = useState(false);
 
@@ -56,12 +56,17 @@ export default function MySessionsTutor({sessions, setSessions, selectedSession,
           setSelectedSession(session);
         }}
         user = {user}
+        notifications = {notifications}
+        setNotifications = {setNotifications}
       />
 
       {/* Show Notification Sidebar */}
       <Notification
         showNoti={showNoti}
         onClose={() => setShowNoti(false)}
+        notifications = {notifications}
+        setNotifications = {setNotifications}
+        user = {user}
       />
     </div>
   );

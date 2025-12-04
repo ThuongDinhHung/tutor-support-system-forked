@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function ConfirmAction({ sessions, setSessions, selectedSession, setSelectedSession, type, onClose, user = null }) {
+export default function ConfirmAction({ sessions, setSessions, selectedSession, setSelectedSession, type, onClose, user = null, notifications, setNotifications }) {
   if (!type) return null;
   const navigate = useNavigate();
   const [reason, setReason] = useState(selectedSession?.reason || "");
@@ -17,6 +17,20 @@ export default function ConfirmAction({ sessions, setSessions, selectedSession, 
     isCancel = true;
   }
 
+  const validateCancel = () => {
+    const now = new Date();
+
+    if (selectedSession.date !== now.toDateString()) return null;
+
+    const startMin = toMinutes(selectedSession.startTime);
+    const currentMin = now.getHours() * 60 + now.getMinutes();
+
+    if (startMin - currentMin < 120)
+      return "Session starts in less than 2 hours. Cannot cancel.";
+    
+    return null; // valid
+  };
+
   const handleCancelSave = () => {
     if (!selectedSession) return;
 
@@ -30,6 +44,31 @@ export default function ConfirmAction({ sessions, setSessions, selectedSession, 
     setSessions((prev) =>
       prev.map((s) => (s.id === selectedSession.id ? updated : s))
     );
+
+    // Send noti
+    const newNotiList = {};
+
+    for (const student of selectedSession.students) {
+      const newNoti = {
+        id: (student.studentID * 1000) + (notifications[student.studentID]?.length || 0) + 1,
+        courseName: selectedSession.courseName,
+        courseID: selectedSession.courseID,
+        tutor: selectedSession.tutor,
+        date: new Date().toISOString(),
+        title: updated.title,
+        description: "The session has been canceled. Reason: " + reason,
+        isRead: false,
+      };
+
+      newNotiList[student.studentID] = [
+        ...(notifications[student.studentID] || []),
+        newNoti,
+      ];
+    }
+    setNotifications(prev => ({
+      ...prev,
+      ...newNotiList
+    }));
   };
 
   const handleRegisterSave = () => {
@@ -79,6 +118,11 @@ export default function ConfirmAction({ sessions, setSessions, selectedSession, 
           <button
             onClick={() => {
               if (isCancel) {
+                const err = validateCancel();
+                if (err) { 
+                  alert(err);
+                  return;
+                }
                 handleCancelSave();
                 onClose();
               } else {

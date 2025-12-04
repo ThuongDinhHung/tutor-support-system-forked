@@ -9,7 +9,7 @@ export const sessionData = [
     startTime: "11:00",
     endTime: "15:00",
     date: "2025-10-10",
-    state: "Ongoing",
+    state: "Being evaluated",
     location: "B6-305",
     maxStudent: 20,
     students: [
@@ -19,6 +19,7 @@ export const sessionData = [
     ],
     description: "- Revise the theory in the System Modeling chapter.\n- Practice drawing Use Case diagrams and writing scenarios.",
     reason: "",
+    hasReminderSent: true,
   },
   {
     id: 2,
@@ -30,7 +31,7 @@ export const sessionData = [
     startTime: "14:00",
     endTime: "16:00",
     date: "2025-10-11",
-    state: "Not started",
+    state: "Finished",
     location: "B9-303",
     maxStudent: 20,
     students: [
@@ -38,6 +39,7 @@ export const sessionData = [
     ],
     description: "",
     reason: "",
+    hasReminderSent: true,
   },
   {
     id: 3,
@@ -61,6 +63,7 @@ export const sessionData = [
     ],
     description: "",
     reason: "",
+    hasReminderSent: true,
   },
   {
     id: 4,
@@ -84,6 +87,7 @@ export const sessionData = [
     ],
     description: "",
     reason: "",
+    hasReminderSent: true,
   },
   {
     id: 5,
@@ -107,5 +111,6 @@ export const sessionData = [
     ],
     description: "",
     reason: "",
+    hasReminderSent: true,
   },
 ]

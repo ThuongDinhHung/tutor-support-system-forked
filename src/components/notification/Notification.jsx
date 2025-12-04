@@ -2,30 +2,6 @@ import { useMemo } from "react";
 import { RxCross2 } from "react-icons/rx";
 import { TbCheck } from "react-icons/tb";
 
-const exampleNotifications = [
-  {
-    id: 1,
-    courseName: "Software Engineering",
-    courseID: "CO3001",
-    tutor: "Lê Minh Hào",
-    time: "10:23 PM",
-    date: "2025-11-07T22:23:00",
-    title: "System modeling review",
-    description: "The session is starting soon!",
-    isRead: false,
-  },
-  {
-    id: 2,
-    courseName: "Software Engineering",
-    courseID: "CO3001",
-    tutor: "Lê Minh Hào",
-    date: "2025-11-05T09:00:00",
-    title: "System modeling review",
-    description: "The tutor has changed the content.",
-    isRead: true,
-  },
-];
-
 const formatNotificationDate = (isoDate) => {
   const date = new Date(isoDate);
   const now = new Date();
@@ -47,19 +23,30 @@ const formatNotificationDate = (isoDate) => {
   }
 };
 
-export default function Notification({ showNoti, onClose, notifications = exampleNotifications }) {
+export default function Notification({ showNoti, onClose, notifications, setNotifications, user}) {
   if (!showNoti) return null;
   // Sort: unread first, then by date descending
   const sorted = useMemo(
     () =>
-      [...notifications].sort((a, b) => {
+      [...notifications[user.id]].sort((a, b) => {
         if (a.isRead === b.isRead) {
           return new Date(b.date) - new Date(a.date);
         }
         return a.isRead ? 1 : -1;
       }),
-    [notifications]
+    [notifications[user.id]]
   );
+
+  const handleMarkAsRead = () => {
+    setNotifications((prevData) => ({
+      ...prevData,
+      [user.id]: prevData[user.id].map((noti) => ({
+        ...noti,
+        isRead: true
+      }))
+    }));
+  };
+
  
   return (
     <div className="fixed inset-y-0 right-0 w-96 bg-white shadow-2xl border-r z-50 flex flex-col">
@@ -70,6 +57,7 @@ export default function Notification({ showNoti, onClose, notifications = exampl
         <div className="flex flex gap-3 justify-end">
           <button 
             className="p-1 hover:bg-text-primary/20 rounded-full transition text-text-primary"
+            onClick={handleMarkAsRead}
           >
             <TbCheck size={20} />
           </button>
