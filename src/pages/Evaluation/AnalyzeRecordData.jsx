@@ -2,7 +2,9 @@ import React from 'react';
 import Header from '../../components/header/Header'; // Điều chỉnh đường dẫn theo project của bạn
 import Footer from '../../components/footer/Footer'; // Điều chỉnh đường dẫn theo project của bạn
 import { FaFilter, FaFileDownload } from 'react-icons/fa';
-
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+//Code: npm install jspdf jspdf-autotable
 // Dữ liệu giả lập y hệt trong hình Figma
 const detailedGrades = [
   { no: 1, id: '52023001', name: 'Alice Johnson', assignment: 90, midterm: 85, final: 92 },
@@ -30,18 +32,63 @@ const enrollmentTrends = [
 ];
 
 // Component con để tái sử dụng nút Filter và Export
-const ActionButtons = () => (
+const ActionButtons = ({ onExport }) => (
   <div className="flex gap-2">
     <button className="flex items-center gap-2 px-3 py-1.5 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50 bg-white">
       <FaFilter /> Filter
     </button>
-    <button className="flex items-center gap-2 px-3 py-1.5 bg-[#0097B2] text-white rounded text-sm hover:bg-[#007f96]">
-      <FaFileDownload /> Export
+    <button onClick={onExport} className="flex items-center gap-2 px-3 py-1.5 bg-[#0097B2] text-white rounded text-sm hover:bg-[#007f96]">
+      <FaFileDownload /> Export Report
     </button>
   </div>
 );
 
 const AnalyzeRecordData = () => {
+
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+
+    // Main Title
+    doc.setFontSize(18);
+    doc.text("Record Data Overview Report", 14, 22);
+
+    // Table 1: Detailed Student Grade Report
+    doc.setFontSize(14);
+    doc.text("Detailed Student Grade Report", 14, 32);
+    autoTable(doc, {
+        startY: 36,
+        head: [['NO.', 'STUDENT ID', 'FULL NAME', 'ASSIGNMENT SCORE', 'MIDTERM SCORE', 'FINAL SCORE']],
+        body: detailedGrades.map(s => [s.no, s.id, s.name, s.assignment, s.midterm, s.final]),
+    });
+
+    // Table 2: Assignment Submissions Overview
+    doc.setFontSize(14);
+    const lastTable = doc.lastAutoTable;
+    if (lastTable && lastTable.finalY) {
+        doc.text("Assignment Submissions Overview", 14, lastTable.finalY + 15);
+        autoTable(doc, {
+            startY: lastTable.finalY + 19,
+            head: [['ASSIGNMENT NAME', 'DUE DATE', 'SUBMITTED', 'TOTAL STUDENTS', 'COMPLETION RATE']],
+            body: assignmentStats.map(s => [s.name, s.due, s.submitted, s.total, s.rate]),
+        });
+    }
+
+
+    // Table 3: Enrollment Trends by Course
+    doc.setFontSize(14);
+    const secondLastTable = doc.lastAutoTable;
+    if (secondLastTable && secondLastTable.finalY) {
+        doc.text("Enrollment Trends by Course", 14, secondLastTable.finalY + 15);
+        autoTable(doc, {
+            startY: secondLastTable.finalY + 19,
+            head: [['COURSE NAME', 'ENROLLMENT', 'CHANGE (LAST TERM)', 'AVG. GRADE']],
+            body: enrollmentTrends.map(s => [s.name, s.enrollment, s.change, s.grade]),
+        });
+    }
+
+    doc.save('Record_Data_Report.pdf');
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -55,13 +102,11 @@ const AnalyzeRecordData = () => {
         <section className="mb-12">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-lg font-semibold">Student Grade Distribution</h2>
-            <ActionButtons />
+            <ActionButtons onExport={handleExportPDF} />
           </div>
 
           <div className="flex justify-center items-center">
-            {/* Lưu ý: Để vẽ biểu đồ tròn chính xác, thường ta dùng thư viện như 'recharts' hoặc 'chart.js'.
-               Ở đây tôi dùng CSS Conic Gradient để mô phỏng nhanh giao diện mà không cần cài thêm thư viện nặng.
-            */}
+            {/* ... (rest of the pie chart JSX) */}
             <div className="relative w-64 h-64 rounded-full" 
                  style={{
                    background: `conic-gradient(
@@ -80,7 +125,6 @@ const AnalyzeRecordData = () => {
             </div>
           </div>
           
-          {/* Legend ở dưới biểu đồ */}
           <div className="flex justify-center gap-6 mt-4 text-xs text-gray-600">
              <div className="flex items-center gap-1"><span className="w-2 h-2 bg-teal-400 rounded-full"></span> Excellent</div>
              <div className="flex items-center gap-1"><span className="w-2 h-2 bg-gray-200 rounded-full"></span> Very Good</div>
@@ -94,7 +138,7 @@ const AnalyzeRecordData = () => {
         <section className="mb-12">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold">Detailed Student Grade Report</h2>
-            <ActionButtons />
+            <ActionButtons onExport={handleExportPDF} />
           </div>
 
           <div className="overflow-x-auto">
@@ -129,11 +173,10 @@ const AnalyzeRecordData = () => {
         <h2 className="text-lg font-semibold mb-4">Additional Analytics</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           
-          {/* Left Table: Assignment Submissions */}
           <div>
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-base font-semibold">Assignment Submissions Overview</h3>
-              <ActionButtons />
+              <ActionButtons onExport={handleExportPDF} />
             </div>
             <table className="w-full text-xs text-left">
               <thead className="text-gray-500 uppercase border-b">
@@ -159,11 +202,10 @@ const AnalyzeRecordData = () => {
             </table>
           </div>
 
-          {/* Right Table: Enrollment Trends */}
           <div>
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-base font-semibold">Enrollment Trends by Course</h3>
-              <ActionButtons />
+              <ActionButtons onExport={handleExportPDF} />
             </div>
             <table className="w-full text-xs text-left">
               <thead className="text-gray-500 uppercase border-b">

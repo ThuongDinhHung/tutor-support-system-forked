@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../../components/header/Header'; // Điều chỉnh đường dẫn theo project của bạn
 import Footer from '../../components/footer/Footer'; // Điều chỉnh đường dẫn theo project của bạn
 import { FaTimes, FaEnvelope } from 'react-icons/fa'; // Icon X và Phong bì
@@ -37,6 +38,7 @@ const ratingOptions = [
 ];
 
 const WriteEvaluationPage = () => {
+  const navigate = useNavigate();
   // State lưu trữ câu trả lời
   const [ratings, setRatings] = useState({}); // Lưu dạng { questionId: index }
   const [feedback, setFeedback] = useState("");
@@ -51,9 +53,30 @@ const WriteEvaluationPage = () => {
 
   // Hàm xử lý submit
   const handleSubmit = () => {
+    // Validation: Check if all questions have been answered
+    if (Object.keys(ratings).length < questions.length) {
+      alert("Please answer all mandatory questions");
+      return; // Stop the submission
+    }
+
     console.log("Ratings:", ratings);
     console.log("Feedback:", feedback);
     alert("Evaluation submitted successfully!");
+    // Optional: Redirect after successful submission
+    // navigate('/success-page');
+  };
+
+  // Hàm xử lý đóng/cancel
+  const handleClose = () => {
+    const isDirty = Object.keys(ratings).length > 0 || feedback.trim() !== "";
+    if (isDirty) {
+      const userConfirmed = window.confirm("Changes you made may not be saved. Are you sure you want to leave?");
+      if (userConfirmed) {
+        navigate('/sessions');
+      }
+    } else {
+      navigate('/sessions');
+    }
   };
 
   return (
@@ -71,7 +94,7 @@ const WriteEvaluationPage = () => {
               Multiple Choice Questions
             </h2>
             <div className="flex gap-3 text-[#008DA6] text-xl cursor-pointer">
-              <FaTimes className="hover:text-cyan-700" />
+              <FaTimes className="hover:text-cyan-700" onClick={handleClose} />
               <FaEnvelope className="hover:text-cyan-700" />
             </div>
           </div>
@@ -81,7 +104,7 @@ const WriteEvaluationPage = () => {
             {questions.map((q, index) => (
               <div 
                 key={q.id} 
-                className={`px-8 py-6 ${index % 2 !== 0 ? 'bg-white' : 'bg-[#EAFBFE]'}`} // Xen kẽ màu nền giống Figma
+                className={`px-8 py-6 ${index % 2 !== 0 ? 'bg-white' : 'bg-[#EAFBFE]'}`}
               >
                 {/* Câu hỏi */}
                 <p className="text-[#008DA6] font-semibold mb-6 text-sm md:text-base">
@@ -123,7 +146,7 @@ const WriteEvaluationPage = () => {
               OTHER COMMENTS/SUGGESTIONS
             </h2>
             <div className="flex gap-3 text-[#008DA6] text-xl cursor-pointer">
-              <FaTimes className="hover:text-cyan-700" />
+              <FaTimes className="hover:text-cyan-700" onClick={handleClose} />
               <FaEnvelope className="hover:text-cyan-700" />
             </div>
           </div>
@@ -141,7 +164,6 @@ const WriteEvaluationPage = () => {
                 placeholder="Type your feedback here..."
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
-                defaultValue="Software engineering is a wonderful,fantastic,amazing subject. I like this subsect and also the professor"
               />
             </div>
 
